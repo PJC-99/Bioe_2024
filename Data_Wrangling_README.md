@@ -1,5 +1,7 @@
-# Foundations of Bioengineering Lab Project Repository
-## Go to the Ncbi Dataset website
+# Week 3
+
+### Go to the Ncbi Dataset website https://www.ncbi.nlm.nih.gov/datasets/genome/?taxon=2&release_year=1980:2001
+
 ### Unzipping the File
 
     $ unzip ncbi_dataset.zip
