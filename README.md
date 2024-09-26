@@ -72,25 +72,35 @@
         Chlamydia trachomatis D/UW-3/CX 1042519
         Organism Scientific Name        Size
 
-### Finding the largest and smallest genome 
+### Finding the largest genome 
 
         $ head -n 1 sorted_list.txt
+        
+### Output
+
         Vibrio cholerae O1 biovar El Tor str. N16961    4033464
 
+### Finding the smallest genome
+
         $ tail -n 2 sorted_list.txt
+
+### Output
+
         Chlamydia trachomatis D/UW-3/CX 1042519
         Organism Scientific Name        Size
 
-### Outputting only the genome size for largest genome
+### Only the genome size for largest genome
 
         $ head -n 1 sorted_list.txt > largestgenome.txt
         cat largestgenome.txt
         cut -f 2 largestgenome.txt > largestgenomenumber
         cat largestgenomenumber
-        
+
+### Output
+
         4033464
 
-### Outputting only the genome size for smallest genome
+### Only the genome size for smallest genome
 
         $ tail -n 2  sorted_list.txt > smallestgenome.txt
         cat smallestgenome.txt
@@ -98,11 +108,38 @@
         head -n 1 smallestgnumber > smallestgenomenumber
         cat smallestgenomenumber
 
+### Output
+
         1042519
 
 ### Finding the number of genomes that contain at least 2+ "c" without the word "coccus"
 
-        $ 
+        $ cut -f 3 ncbi_dataset.tsv | tail -n +2 | uniq | grep -io 'c.*c'| wc -l
+
+### Output
+
+        7
+
+### Without the word coccus
+
+        cut -f 3 ncbi_dataset.tsv | tail -n +2 | uniq | grep -io 'c.*c'| grep -v 'coccus' | wc -l
+
+### Output
+
+        5
+
+
+### Total number of genome files (FASTA) larger than 3MB   
+
+        $ find . -name "*.fna" -size +3M | wc -l
+
+### Output 
+
+        3
+
+
+
+
 
         
 
