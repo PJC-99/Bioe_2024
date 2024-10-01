@@ -1,3 +1,16 @@
+# PJC 
+# LLM: Chatgpt-4o
+# Prompt: "how could i solve this with my current code keeping my structure and functions intact, just adding the features asked in these instructions: Even when filtered by length, not all ORFs will eventually
+# be translated into a protein. One thing to look for is a ribosome binding site which is usually located 4-20bp upstream of the start coding.
+# Scan upstream of the predicted start codon (e.g., -20 bp, but make this
+# a parameter of your tool) for a ribosome binding site (RBS); there are
+# several sequences that can indicate an RBS, the most common being the
+# Shine-Dalgarno sequence (AGGAGG). Filter all predicted ORFs based on
+# whether they contain a Shine-Dalgarno sequence up to 20bp upstream of
+# the start codon"
+
+
+
 import os
 import logging
 
@@ -162,6 +175,10 @@ def process_fasta_files_in_directory(directory_path, output_file):
     # Print a final summary of all files processed
     print(f"Total ORFs found: {total_orfs_found}")
     print(f"Total proteins translated: {total_proteins_translated}")
+
+# Prompt: "how can this script be outputted in a way that doesnt clog the terminal?"
+# is there something we can print that is not a large output that lets us know its correct? 
+# in addition to the previous solution
 
 # Main block
 if __name__ == "__main__":
