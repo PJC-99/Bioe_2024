@@ -1,11 +1,12 @@
-#Gene Finder tool
-###LLM : Chatgpt-4o
-###Prompt: "Write a python code to find a single gene in a sequence from a input file in fasta (.fna) format. 
-###The output must be a region between start codon 'ATG' and stop codons 'TAA', 'TAG', 'TGA' inside the fasta file and consider three possible reading frames."
+# PJC
+# LLM used: ChatGPT-4o
+#Prompt used:"Write a Python script to find a gene in a genome sequence using a start codon ('ATG') and a stop codon ('TAA', 'TAG ', 'TGA') 
+# to find genes in the genome sequence."
+#Troubleshot errors and compared the not working code with a sample one with the prompt: "im going to send you two codes, the first one is correct and has the desired output and the second one i am troubleshooting to get the same output, both have the same inputs."
 
-# genefinder.py
 
 import os
+#"Can you implement a codon table to help correct the output?"
 
 # Codon table mapping codons to their corresponding amino acids
 CODON_TABLE = {
@@ -32,13 +33,34 @@ def load_fasta(file_path):
     with open(file_path, 'r') as fasta_file:
         return ''.join(line.strip() for line in fasta_file if not line.startswith('>'))
 
+
+# Prompt: "add a filter to discard shor orfs, unlikely to be functional genes. 
+# Less than 100 codons and do not alter the code structure just include it in the finding orfs in six frames function
+# 
+# "
+
 # Function to identify ORFs across all six reading frames
 def discover_orfs_in_six_frames(seq):
+    min_codon_length = 100  # ORF must be at least 100 codons long (300 nucleotides)
     forward_frames = [seq[i:] for i in range(3)]  # Forward frames: 0, 1, 2
     reverse_seq = reverse_complement(seq)
     reverse_frames = [reverse_seq[i:] for i in range(3)]  # Reverse frames: 0, 1, 2
     all_frames = forward_frames + reverse_frames
-    return [orf for frame in all_frames for orf in extract_orfs(frame)]
+
+    # Extract all ORFs
+    all_orfs = [orf for frame in all_frames for orf in extract_orfs(frame)]
+
+    # Prompt: "What can we do to confirm the filter worked?
+    #i think its better if theres a codon count inside the function that outputs the lenght of the codon"
+    
+    # Filter ORFs that are at least 100 codons long
+    filtered_orfs = [orf for orf in all_orfs if len(orf) // 3 >= min_codon_length]
+    
+    # Print the number of ORFs before and after filtering
+    print(f"Total ORFs found before filtering: {len(all_orfs)}")
+    print(f"Total ORFs after filtering (>= 100 codons): {len(filtered_orfs)}")
+
+    return filtered_orfs
 
 # Function to reverse complement a sequence
 def reverse_complement(seq):
@@ -86,6 +108,11 @@ def translate_orfs_to_proteins(orfs):
             orf_protein_pairs.append((orf, protein))  # Store ORF and its protein
     return orf_protein_pairs
 
+#Prompt: "or the orf output, store it in a txt file instead of outputting it on the terminal. Use the corresponding lable for each folder
+# include the dna orf sequence too 
+# 
+# "
+
 # Function to process each FASTA file in each folder and write all ORFs and translations to a single text file
 def process_fasta_files_in_directory(directory_path, output_file):
     # Open a single output file to store results from all folders
@@ -119,18 +146,23 @@ def process_fasta_files_in_directory(directory_path, output_file):
 
                 # Write the ORFs and proteins to the file and print them
                 for i, (orf, protein) in enumerate(orf_protein_pairs, 1):
-                    # Print ORF DNA and protein translation
-                    print(f"\nORF {i} (DNA): {orf}")
-                    print(f"Protein {i}: {protein}")
+                    codon_length = len(orf) // 3  # Calculate the ORF length in codons
+                    
+                    #Prompt: "add basic lines of print for the orfs dna sequence, and the protein translation" 
+                    # Print ORF DNA, codon length, and protein translation to verify contents
+
+                    #print(f"\nORF {i} (Length: {codon_length} codons): {orf}")
+                    #print(f"Protein {i}: {protein}")
                     
                     # Write to file
-                    out_file.write(f"\nORF {i} (DNA): {orf}\n")
+                    out_file.write(f"\nORF {i} (Length: {codon_length} codons): {orf}\n")
                     out_file.write(f"Protein {i}: {protein}\n")
 
+
+#Prompt: "can you change it to be run with a main block at the bottom?"
+#        "change the main to be able to iterate in each folder in main and enter to each .fna"
 # Main block
 if __name__ == "__main__":
     directory_path = "ncbi_dataset/data"  # Directory containing subfolders with FASTA files
     output_file = "all_orfs_and_proteins.txt"  # Output file for ORFs and translations from all folders
     process_fasta_files_in_directory(directory_path, output_file)
-
-# To get the orfs of all 14 genomes you can use cat, less, or nano all_orfs_and_proteins.txt
