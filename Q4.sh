@@ -1,28 +1,36 @@
-# Initialize variables to track the genome with the maximum CDS count
-$maxCDS = 0
-$maxGenome = ""
+#!/bin/bash
 
-# Search for all .fna files in the directory and subdirectories
-Get-ChildItem -Recurse -Filter *.fna -Path "/workspaces/Bioe_2024/ncbi_dataset" | ForEach-Object {
+# Find all .fna files in the current directory and subdirectories
+files=$(find . -type f -name "*.fna")
 
-    # Define the output GFF file name based on the input .fna file name
-    $outputGff = "$($_.FullName).gff"
+# Check if any .fna files were found
+if [ -z "$files" ]; then
+    echo "No .fna files found."
+    exit 1
+fi
 
-    # Run Prodigal on the genome file and suppress stdout/stderr output
-    prodigal -i $_.FullName -o $outputGff -f gff > $null 2>&1
+# Loop over each genome file
+for file in $files; do
+    echo "Processing file: $file"
 
-    # Count the number of genes (CDS) by searching for "CDS" in the GFF file
-    $cdsCount = (Get-Content $outputGff | Select-String -Pattern "CDS").Count
+    # Define Prokka output directory and prefix
+    output_prokka="prokka_output_$(basename "$file" .fna)"
+    prefix_prokka="prokka_genes_$(basename "$file" .fna)"
+    gbk_file="$output_prokka/$prefix_prokka.gbk"
 
-    # Display the genome file name and its gene count
-    Write-Output "$($_.FullName) has $cdsCount genes."
+    # Run Prokka on the genome file
+    echo "Running Prokka for $file..."
+    prokka --outdir "$output_prokka" --prefix "$prefix_prokka" --quiet "$file" > /dev/null
 
-    # Check if this genome has the highest number of genes
-    if ($cdsCount -gt $maxCDS) {
-        $maxCDS = $cdsCount
-        $maxGenome = $_.FullName
-    }
-}
+    # Check if the Prokka output exists
+    if [ -f "$gbk_file" ]; then
+        # Count the number of genes annotated by Prokka by counting the lines with "CDS" in the GBK output
+        num_genes_prokka=$(grep -c "CDS" "$gbk_file")
+        echo "Prokka annotated $num_genes_prokka genes for $file."
 
-# Output the genome with the highest number of CDS
-Write-Output "Genome with the highest number of genes: $maxGenome ($maxCDS genes)"
+        # Output the result to a text file
+        echo "$file has $num_genes_prokka genes using Prokka." >> gene_counts_prokka.txt
+    else
+        echo "Prokka output not found for $file"
+    fi
+done
