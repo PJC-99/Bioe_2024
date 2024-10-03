@@ -8,19 +8,20 @@
 ## contained in the open reading frame of the DNA sequence encoding the
 ## amino acids (including the stop codon)
 
-aas = "KVRMFTSELDIMLSVNGPADQIKYFCRHWT*"
+$ code
 
-count_aminoacids = len(aas)-1 # Count the amino acids without the stop codon, the substraction accounts for the stop codon
+      aas = "KVRMFTSELDIMLSVNGPADQIKYFCRHWT*"
 
-total_counts = (count_aminoacids * 3) + 3 # Count the amino acids with the stop codon (tmes 3 bases, plus 3 for stop codon)
+      count_aminoacids = len(aas)-1 # Count the amino acids without the stop codon, the substraction accounts for the stop codon
 
-print("Number of amino acids:", total_counts ,   
+      total_counts = (count_aminoacids * 3) + 3 # Count the amino acids with the stop codon (tmes 3 bases, plus 3 for stop codon)
+
+      print("Number of amino acids:", total_counts ,   
       "\nTotal_number of nuc bases in the orf (with stop codon):", count_aminoacids)
 
 # Output:
-
-Number of amino acids: 93 
-Total_number of nuc bases in the orf (with stop codon): 30
+$       Number of amino acids: 93 
+      Total_number of nuc bases in the orf (with stop codon): 30
 
 # Question 2
 ## Run prodigal on one of the genomes you have previously downloaded. Using command line tools, count how many genes were annotated
