@@ -1,0 +1,33 @@
+# Find all .fna files in the current directory and subdirectories
+$files = Get-ChildItem -Recurse -Filter *.fna
+
+if ($files.Count -eq 0) {
+    Write-Host "No .fna files found."
+    exit
+}
+
+# Loop over each genome file
+foreach ($file in $files) {
+    Write-Host "Processing file: $($file.FullName)"
+    
+    # Define Prokka output directory and prefix
+    $outputProkka = "prokka_output_$($file.BaseName)"
+    $prefixProkka = "prokka_genes_$($file.BaseName)"
+    $gbkFile = "$outputProkka/$prefixProkka.gbk"
+
+    # Run Prokka on the genome file
+    Write-Host "Running Prokka for $($file.FullName)..."
+    prokka --outdir $outputProkka --prefix $prefixProkka --quiet $file.FullName | Out-Null
+
+    # Check if the Prokka output exists
+    if (Test-Path $gbkFile) {
+        # Count the number of genes annotated by Prokka by counting the lines with "CDS" in the GBK output
+        $numGenesProkka = (Select-String -Pattern "CDS" -Path $gbkFile).Count
+        Write-Host "Prokka annotated $numGenesProkka genes for $($file.FullName)."
+        
+        # Output the result
+        Add-Content -Path "gene_counts_prokka.txt" -Value "$($file.FullName) has $numGenesProkka genes using Prokka."
+    } else {
+        Write-Host "Prokka output not found for $($file.FullName)"
+    }
+}
